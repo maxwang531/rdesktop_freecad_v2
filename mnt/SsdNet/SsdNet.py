@@ -1,5 +1,5 @@
 import os
-import pyvista as pv
+
 import pandas as pd
 import numpy as np
 import csv
@@ -290,48 +290,13 @@ def eval_metric(pre,trul,tp):
     
     return precision, recall
 
-
-
-def disp_results(filename, items):
-    
-
-    pv.set_plot_theme("document") #导入模板，这是为文档样式绘图和制作出版质量数字而构建的，就是展示的背景样式
-    mesh = pv.PolyData(filename+'.STL') #创建点云，也就是包含点的数据结构
-    
-    
-    plotter = pv.Plotter() #建一个画板
-    plotter.add_mesh(mesh,opacity=0.3,color='#FFFFFF')
-   
-    shapetypes = ['O ring', 'Through hole', 'Blind hole', 'Triangular passage', 'Rectangular passage', 'Circular through slot', 'Triangular through slot', 'Rectangular through slot', 'Rectangular blind slot','Triangular pocket', 'Rectangular pocket', 'Circular end pocket', 'Triangular blind step', 'Circular blind step', 'Rectangular blind step', 'Rectangular through step' , '2-sides through step', 'Slanted through step', 'Chamfer', 'Round', 'Vertical circular end blind slot', 'Horizontal circular end blind slot', '6-sides passage', '6-sides pocket']
-
-    colors = ['#000080','#FF0000','#FFFF00','#00BFFF','#DC143C','#DAA520','#DDA0DD','#708090','#556B2F','#483D8B','#CD5C5C','#21618C','#1C2833','#4169E1','#1E90FF','#FFD700','#FF4500','#646464','#DC143C','#98FB98','#9370DB','#8B4513','#00FF00','#008080']
-    
-    
-    flag = np.zeros(24)# np.zeros(5) array([ 0.,  0.,  0.,  0.,  0.])
-    
-    
-    for i in range(items.shape[0]):
-        if flag[int(items[i,6])] == 0:
-            plotter.add_mesh(pv.Cube((0, 0, 0),0,0,0,(items[i,0],items[i,3],items[i,1],items[i,4],items[i,2],items[i,5])),opacity=1,color=colors[int(items[i,6])],style='wireframe',line_width=2,label=shapetypes[int(items[i,6])])
-            print(shapetypes[int(items[i,6])])
-            flag[int(items[i,6])] = 1
-        else:
-            plotter.add_mesh(pv.Cube((0, 0, 0),0,0,0,(items[i,0],items[i,3],items[i,1],items[i,4],items[i,2],items[i,5])),opacity=1,color=colors[int(items[i,6])],style='wireframe',line_width=2)
-            
-            
-    plotter.add_legend()
-    plotter.show()
-
-
-
-
 net = load_pretrained_model()
-os.system("sh /config/eingabe_model/bool_model/model_ssdnet.sh")
-filename = '/config/eingabe_model/Common'
-csvfilename = 'E:/111Masterarbeit/Github/Ausarbeitung/CSV/demo3.csv'
+os.system("sh /docker_demo/src/eingabe_model/bool_model/model_ssdnet.sh")
+filename = '/docker_demo/src/eingabe_model/Common'
+csvfilename = 'docker_demo/src/eingabe_model/csv_file/demo3.csv'
 
 labels = get_predicted_label(filename,net,csvfilename) #display predicted boxes
-#disp_results(filename, labels)
+
 
 
 
