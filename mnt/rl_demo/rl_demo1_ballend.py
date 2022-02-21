@@ -458,6 +458,17 @@ model.save(save_dir + "/demo1_500")
 App.closeDocument(file_name_2)
 Gui.doCommand('exit()')
 
+'''
+#Model load
+model = PPO.load("/config/training_data/rl_model/demo1_500",env=env, verbose=1, tensorboard_log=log_dir, gamma=0 ,n_steps = 64)
+model.learn(total_timesteps=500, callback=callback)
+os.makedirs(save_dir, exist_ok=True)
+model.save(save_dir + "/demo1_1000")
+App.closeDocument(file_name_2)
+Gui.doCommand('exit()')
+'''
+
+
 #Model Use
 '''
 model = PPO.load(model_file)
