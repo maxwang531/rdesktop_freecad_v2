@@ -1234,7 +1234,15 @@ DOC = App.activeDocument()
 DOC.recompute()
 obj = App.ActiveDocument.getObject('Part__Feature')
 face_anzahl_list = obj.Shape.Faces
-#print("sssss",len(face_anzahl_list)) #33
+
+xmin = obj.Shape.BoundBox.XMin
+xmax = obj.Shape.BoundBox.XMax
+ymin = obj.Shape.BoundBox.YMin
+ymax = obj.Shape.BoundBox.YMax
+zmin = obj.Shape.BoundBox.ZMin
+zmax = obj.Shape.BoundBox.ZMax
+centervector = ((xmin+xmax)/2,(ymin+ymax)/2,(zmin+zmax)/2)
+
 face_centermass_list = [] #原始模型所有面的质心
 for i in range(0,len(face_anzahl_list)):
     face_centermass_face = App.ActiveDocument.Part__Feature.Shape.Faces[i]
@@ -1500,6 +1508,479 @@ gcode = post.export(postlist, gcodePath_top , job.PostProcessorArgs)
 DOC.recompute()
 print("--- done ---")
 App.closeDocument(file_name_1)
+
+
+
+# site1 operation
+DOC=App.openDocument(filepath_original)
+DOC.recompute()
+DOC = App.activeDocument()
+DOC.recompute()
+Part1 =  DOC.getObject(file_name_2)
+
+obj = App.ActiveDocument.Part__Feature                     # our box
+rot = App.Rotation(App.Vector(0,1,0),90)   # 45° about Z
+centre = App.Vector(centervector)                  # central point of box
+pos = obj.Placement.Base                           # position point of box
+newplace = App.Placement(pos,rot,centre)       # make a new Placement object
+obj.Placement = newplace
+#Job creat
+
+Gui.activateWorkbench("PathWorkbench") #Path Workbrench activate
+job = PathJob.Create('Job_site1', [Part1], None)
+job.ViewObject.Proxy = PathJobGui.ViewProvider(job.ViewObject)
+
+#operation about Stock
+stock = job.Stock
+stock.setExpression('ExtXneg',None)
+stock.ExtXneg = 0.00
+stock.setExpression('ExtXpos',None)
+stock.ExtXpos = 0.00
+stock.setExpression('ExtYneg',None)
+stock.ExtYneg = 0.00
+stock.setExpression('ExtYpos',None)
+stock.ExtYpos = 0.00
+stock.setExpression('ExtZneg',None)
+stock.ExtZneg = 0.00
+stock.setExpression('ExtZpos',None)
+stock.ExtZpos = 0.00
+
+#Werkzeug Aufladen
+tool1_diameter = werkzeug(toolpath1, 'tool1') #3mm_endmill
+tool2_diameter = werkzeug(toolpath2, 'tool2') #5mm_endmill
+App.getDocument(file_name_1).getObject('ToolBit001').ShapeName = "endmill"
+DOC.recompute()
+werkzeuglist = ['tool1','tool2']
+
+#operation
+if 10.0 in dict_all:
+    for i in range (0,len(pocket_operation_dict['Site1'])):
+        site1_pocket_face_id = bottom_face_line_original[pocket_operation_dict['Site1'][i][3]]
+        site1_pocket_face = 'Face{:d}'.format(site1_pocket_face_id[0])
+        adaptive_operation(site1_pocket_face,0,werkzeuglist[0],0,name=i)
+if 2.0 in dict_all:
+    for i in range (0,len(blind_hole_operation_dict['Site1'])):
+        site1_blind_hole_face_id = blind_hole_bottom_face_line_original[blind_hole_operation_dict['Site1'][i][3]]
+        site1_blind_hole_face = 'Face{:d}'.format(site1_blind_hole_face_id[0])
+        adaptive_operation(site1_blind_hole_face, 0, werkzeuglist[0], 0, name=i+10)
+if 14.0 in dict_all:
+    for i in range (0,len(blind_step_operation_dict['Site1'])):
+        site1_blind_step_face_id = blind_step_bottom_face_line_original[blind_step_operation_dict['Site1'][i][3]]
+        site1_blind_step_face = 'Face{:d}'.format(site1_blind_step_face_id[0])
+        adaptive_operation(site1_blind_step_face, 0, werkzeuglist[0], 0, name=i + 20)
+if 7.0 in dict_all:
+    for i in range (0,len(rechtgular_through_slot_operation_dict['Site1'])):
+        site1_rechtgular_through_slot_face_id = rechtgular_through_slot_bottom_face_line_original[rechtgular_through_slot_operation_dict['Site1'][i][3]]
+        site1_rechtgular_through_slot_face = 'Face{:d}'.format(site1_rechtgular_through_slot_face_id[0])
+        adaptive_operation(site1_rechtgular_through_slot_face,0,werkzeuglist[0],0,name=i)
+if 8.0 in dict_all:
+    for i in range (0,len(rechtgular_blind_slot_operation_dict['Site1'])):
+        site1_rechtgular_blind_slot_face_id = rechtgular_blind_slot_bottom_face_line_original[rechtgular_blind_slot_operation_dict['Site1'][i][3]]
+        site1_rechtgular_blind_slot_face = 'Face{:d}'.format(site1_rechtgular_blind_slot_face_id[0])
+        adaptive_operation(site1_rechtgular_blind_slot_face,0,werkzeuglist[0],0,name=i)
+if 12.0 in dict_all:
+    for i in range (0,len(triangular_blind_step_operation_dict['Site1'])):
+        site1_triangular_blind_step_face_id = triangular_blind_step_bottom_face_line_original[triangular_blind_step_operation_dict['Site1'][i][3]]
+        site1_triangular_blind_step_face = 'Face{:d}'.format(site1_triangular_blind_step_face_id[0])
+        adaptive_operation(site1_triangular_blind_step_face,0,werkzeuglist[0],0,name=i)
+if 13.0 in dict_all:
+    for i in range (0,len(circular_blind_step_operation_dict['Site1'])):
+        site1_circular_blind_step_face_id = circular_blind_step_bottom_face_line_original[circular_blind_step_operation_dict['Site1'][i][3]]
+        site1_circular_blind_step_face = 'Face{:d}'.format(site1_circular_blind_step_face_id[0])
+        adaptive_operation(site1_circular_blind_step_face,0,werkzeuglist[0],0,name=i)
+if 15.0 in dict_all:
+    for i in range (0,len(rechtangular_through_step_operation_dict['Site1'])):
+        site1_rechtangular_through_step_face_id = rechtangular_through_step_bottom_face_line_original[rechtangular_through_step_operation_dict['Site1'][i][3]]
+        site1_rechtangular_through_step_face = 'Face{:d}'.format(site1_rechtangular_through_step_face_id[0])
+        adaptive_operation(site1_rechtangular_through_step_face,0,werkzeuglist[0],0,name=i)
+if 17.0 in dict_all:
+    for i in range (0,len(slanted_through_step_operation_dict['Site1'])):
+        site1_slanted_through_step_face_id = slanted_through_step_bottom_face_line_original[slanted_through_step_operation_dict['Site1'][i][3]]
+        site1_slanted_through_step_face = 'Face{:d}'.format(site1_slanted_through_step_face_id[0])
+        adaptive_operation(site1_slanted_through_step_face,0,werkzeuglist[0],0,name=i)
+if 20.0 in dict_all:
+    for i in range (0,len(vertical_circular_end_blind_slot_operation_dict['Site1'])):
+        site1_vertical_circular_end_blind_slot_face_id = vertical_circular_end_blind_slot_bottom_face_line_original[vertical_circular_end_blind_slot_operation_dict['Site1'][i][3]]
+        site1_vertical_circular_end_blind_slot_face = 'Face{:d}'.format(site1_vertical_circular_end_blind_slot_face_id[0])
+        adaptive_operation(site1_vertical_circular_end_blind_slot_face,0,werkzeuglist[0],0,name=i)
+if 21.0 in dict_all:
+    for i in range (0,len(horizontal_circular_end_blind_slot_operation_dict['Site1'])):
+        site1_horizontal_circular_end_blind_slot_face_id = horizontal_circular_end_blind_slot_bottom_face_line_original[horizontal_circular_end_blind_slot_operation_dict['Site1'][i][3]]
+        site1_horizontal_circular_end_blind_slot_face = 'Face{:d}'.format(site1_horizontal_circular_end_blind_slot_face_id[0])
+        adaptive_operation(site1_horizontal_circular_end_blind_slot_face,0,werkzeuglist[0],0,name=i)
+
+job.PostProcessorOutputFile = gcodePath_site1
+job.PostProcessor = 'linuxcnc'
+job.PostProcessorArgs = '--no-show-editor'
+postlist = []
+currTool = None
+for obj in job.Operations.Group:
+    print( obj.Name)
+    tc = PathUtil.toolControllerForOp(obj)
+    if tc is not None:
+        if tc.ToolNumber != currTool:
+            postlist.append(tc)
+            currTool = tc.ToolNumber
+    postlist.append(obj)
+
+post = PathPostProcessor.PostProcessor.load(job.PostProcessor)
+gcode = post.export(postlist, gcodePath_site1, job.PostProcessorArgs)
+DOC.recompute()
+print("--- done ---")
+App.closeDocument(file_name_1)
+
+#Site2 operation
+DOC = App.openDocument(filepath_original)
+DOC.recompute()
+DOC = App.activeDocument()
+DOC.recompute()
+Part1 = DOC.getObject(file_name_2)
+
+obj = App.ActiveDocument.Part__Feature                    # our box
+rot = App.Rotation(App.Vector(1,0,0),90)   # 45° about Z
+centre = App.Vector(centervector)                  # central point of box
+pos = obj.Placement.Base                           # position point of box
+newplace = App.Placement(pos,rot,centre)       # make a new Placement object
+obj.Placement = newplace
+
+#Job creat
+Gui.activateWorkbench("PathWorkbench") #Path Workbrench activate
+job = PathJob.Create('Job_site2', [Part1], None)
+job.ViewObject.Proxy = PathJobGui.ViewProvider(job.ViewObject)
+
+#operation about Stock
+stock = job.Stock
+stock.setExpression('ExtXneg',None)
+stock.ExtXneg = 0.00
+stock.setExpression('ExtXpos',None)
+stock.ExtXpos = 0.00
+stock.setExpression('ExtYneg',None)
+stock.ExtYneg = 0.00
+stock.setExpression('ExtYpos',None)
+stock.ExtYpos = 0.00
+stock.setExpression('ExtZneg',None)
+stock.ExtZneg = 0.00
+stock.setExpression('ExtZpos',None)
+stock.ExtZpos = 0.00
+
+#Werkzeug Aufladen
+tool1_diameter = werkzeug(toolpath1, 'tool1') #3mm_endmill
+tool2_diameter = werkzeug(toolpath2, 'tool2') #5mm_endmill
+App.getDocument(file_name_1).getObject('ToolBit001').ShapeName = "endmill"
+DOC.recompute()
+werkzeuglist = ['tool1','tool2']
+
+#operation
+if 10.0 in dict_all:
+    for i in range (0,len(pocket_operation_dict['Site2'])):
+        site2_pocket_face_id = bottom_face_line_original[pocket_operation_dict['Site2'][i][3]]
+        site2_pocket_face = 'Face{:d}'.format(site2_pocket_face_id[0])
+        adaptive_operation(site2_pocket_face,0,werkzeuglist[0],0,name=i)
+if 2.0 in dict_all:
+    for i in range (0,len(blind_hole_operation_dict['Site2'])):
+        site2_blind_hole_face_id = blind_hole_bottom_face_line_original[blind_hole_operation_dict['Site2'][i][3]]
+        site2_blind_hole_face = 'Face{:d}'.format(site2_blind_hole_face_id[0])
+        adaptive_operation(site2_blind_hole_face, 0, werkzeuglist[0], 0, name=i+10)
+if 14.0 in dict_all:
+    for i in range (0,len(blind_step_operation_dict['Site2'])):
+        site2_blind_step_face_id = blind_step_bottom_face_line_original[blind_step_operation_dict['Site2'][i][3]]
+        site2_blind_step_face = 'Face{:d}'.format(site2_blind_step_face_id[0])
+        adaptive_operation(site2_blind_step_face, 0, werkzeuglist[0], 0, name=i + 20)
+if 7.0 in dict_all:
+    for i in range (0,len(rechtgular_through_slot_operation_dict['Site2'])):
+        site2_rechtgular_through_slot_face_id = rechtgular_through_slot_bottom_face_line_original[rechtgular_through_slot_operation_dict['Site2'][i][3]]
+        site2_rechtgular_through_slot_face = 'Face{:d}'.format(site2_rechtgular_through_slot_face_id[0])
+        adaptive_operation(site2_rechtgular_through_slot_face,0,werkzeuglist[0],0,name=i)
+if 8.0 in dict_all:
+    for i in range (0,len(rechtgular_blind_slot_operation_dict['Site2'])):
+        site2_rechtgular_blind_slot_face_id = rechtgular_blind_slot_bottom_face_line_original[rechtgular_blind_slot_operation_dict['Site2'][i][3]]
+        site2_rechtgular_blind_slot_face = 'Face{:d}'.format(site2_rechtgular_blind_slot_face_id[0])
+        adaptive_operation(site2_rechtgular_blind_slot_face,0,werkzeuglist[0],0,name=i)
+if 12.0 in dict_all:
+    for i in range (0,len(triangular_blind_step_operation_dict['Site2'])):
+        site2_triangular_blind_step_face_id = triangular_blind_step_bottom_face_line_original[triangular_blind_step_operation_dict['Site2'][i][3]]
+        site2_triangular_blind_step_face = 'Face{:d}'.format(site2_triangular_blind_step_face_id[0])
+        adaptive_operation(site2_triangular_blind_step_face,0,werkzeuglist[0],0,name=i)
+if 13.0 in dict_all:
+    for i in range (0,len(circular_blind_step_operation_dict['Site2'])):
+        site2_circular_blind_step_face_id = circular_blind_step_bottom_face_line_original[circular_blind_step_operation_dict['Site2'][i][3]]
+        site2_circular_blind_step_face = 'Face{:d}'.format(site2_circular_blind_step_face_id[0])
+        adaptive_operation(site2_circular_blind_step_face,0,werkzeuglist[0],0,name=i)
+if 15.0 in dict_all:
+    for i in range (0,len(rechtangular_through_step_operation_dict['Site2'])):
+        site2_rechtangular_through_step_face_id = rechtangular_through_step_bottom_face_line_original[rechtangular_through_step_operation_dict['Site2'][i][3]]
+        site2_rechtangular_through_step_face = 'Face{:d}'.format(site2_rechtangular_through_step_face_id[0])
+        adaptive_operation(site2_rechtangular_through_step_face,0,werkzeuglist[0],0,name=i)
+if 17.0 in dict_all:
+    for i in range (0,len(slanted_through_step_operation_dict['Site2'])):
+        site2_slanted_through_step_face_id = slanted_through_step_bottom_face_line_original[slanted_through_step_operation_dict['Site2'][i][3]]
+        site2_slanted_through_step_face = 'Face{:d}'.format(site2_slanted_through_step_face_id[0])
+        adaptive_operation(site2_slanted_through_step_face,0,werkzeuglist[0],0,name=i)
+if 20.0 in dict_all:
+    for i in range (0,len(vertical_circular_end_blind_slot_operation_dict['Site2'])):
+        site2_vertical_circular_end_blind_slot_face_id = vertical_circular_end_blind_slot_bottom_face_line_original[vertical_circular_end_blind_slot_operation_dict['Site2'][i][3]]
+        site2_vertical_circular_end_blind_slot_face = 'Face{:d}'.format(site2_vertical_circular_end_blind_slot_face_id[0])
+        adaptive_operation(site2_vertical_circular_end_blind_slot_face,0,werkzeuglist[0],0,name=i)
+if 21.0 in dict_all:
+    for i in range (0,len(horizontal_circular_end_blind_slot_operation_dict['Site2'])):
+        site2_horizontal_circular_end_blind_slot_face_id = horizontal_circular_end_blind_slot_bottom_face_line_original[horizontal_circular_end_blind_slot_operation_dict['Site2'][i][3]]
+        site2_horizontal_circular_end_blind_slot_face = 'Face{:d}'.format(site2_horizontal_circular_end_blind_slot_face_id[0])
+        adaptive_operation(site2_horizontal_circular_end_blind_slot_face,0,werkzeuglist[0],0,name=i)
+
+job.PostProcessorOutputFile = gcodePath_site2
+job.PostProcessor = 'linuxcnc'
+job.PostProcessorArgs = '--no-show-editor'
+postlist = []
+currTool = None
+for obj in job.Operations.Group:
+    print( obj.Name)
+    tc = PathUtil.toolControllerForOp(obj)
+    if tc is not None:
+        if tc.ToolNumber != currTool:
+            postlist.append(tc)
+            currTool = tc.ToolNumber
+    postlist.append(obj)
+
+post = PathPostProcessor.PostProcessor.load(job.PostProcessor)
+gcode = post.export(postlist, gcodePath_site2, job.PostProcessorArgs)
+DOC.recompute()
+print("--- done ---")
+App.closeDocument(file_name_1)
+
+
+#site3 operation
+DOC = App.openDocument(filepath_original)
+DOC.recompute()
+DOC = App.activeDocument()
+DOC.recompute()
+
+obj = App.ActiveDocument.Part__Feature                    # our box
+rot = App.Rotation(App.Vector(0,1,0),-90)   # 45° about Z
+centre = App.Vector(centervector)                  # central point of box
+pos = obj.Placement.Base                           # position point of box
+newplace = App.Placement(pos,rot,centre)       # make a new Placement object
+obj.Placement = newplace
+Part1 = DOC.getObject(file_name_2)
+
+#Job creat
+Gui.activateWorkbench("PathWorkbench") #Path Workbrench activate
+job = PathJob.Create('Job_top', [Part1], None)
+job.ViewObject.Proxy = PathJobGui.ViewProvider(job.ViewObject)
+
+#operation about Stock
+stock = job.Stock
+stock.setExpression('ExtXneg',None)
+stock.ExtXneg = 0.00
+stock.setExpression('ExtXpos',None)
+stock.ExtXpos = 0.00
+stock.setExpression('ExtYneg',None)
+stock.ExtYneg = 0.00
+stock.setExpression('ExtYpos',None)
+stock.ExtYpos = 0.00
+stock.setExpression('ExtZneg',None)
+stock.ExtZneg = 0.00
+stock.setExpression('ExtZpos',None)
+stock.ExtZpos = 0.00
+
+#Werkzeug Aufladen
+tool1_diameter = werkzeug(toolpath1, 'tool1') #3mm_endmill
+tool2_diameter = werkzeug(toolpath2, 'tool2') #5mm_endmill
+App.getDocument(file_name_1).getObject('ToolBit001').ShapeName = "endmill"
+DOC.recompute()
+werkzeuglist = ['tool1','tool2']
+
+#operation
+if 10.0 in dict_all:
+    for i in range (0,len(pocket_operation_dict['Site3'])):
+        site3_pocket_face_id = bottom_face_line_original[pocket_operation_dict['Site3'][i][3]]
+        site3_pocket_face = 'Face{:d}'.format(site3_pocket_face_id[0])
+        adaptive_operation(site3_pocket_face,0,werkzeuglist[0],0,name=i)
+if 2.0 in dict_all:
+    for i in range (0,len(blind_hole_operation_dict['Site3'])):
+        site3_blind_hole_face_id = blind_hole_bottom_face_line_original[blind_hole_operation_dict['Site3'][i][3]]
+        site3_blind_hole_face = 'Face{:d}'.format(site3_blind_hole_face_id[0])
+        adaptive_operation(site3_blind_hole_face, 0, werkzeuglist[0], 0, name=i+10)
+if 14.0 in dict_all:
+    for i in range (0,len(blind_step_operation_dict['Site3'])):
+        site3_blind_step_face_id = blind_step_bottom_face_line_original[blind_step_operation_dict['Site3'][i][3]]
+        site3_blind_step_face = 'Face{:d}'.format(site3_blind_step_face_id[0])
+        adaptive_operation(site3_blind_step_face, 0, werkzeuglist[0], 0, name=i + 20)
+if 7.0 in dict_all:
+    for i in range (0,len(rechtgular_through_slot_operation_dict['Site3'])):
+        site3_rechtgular_through_slot_face_id = rechtgular_through_slot_bottom_face_line_original[rechtgular_through_slot_operation_dict['Site3'][i][3]]
+        site3_rechtgular_through_slot_face = 'Face{:d}'.format(site3_rechtgular_through_slot_face_id[0])
+        adaptive_operation(site3_rechtgular_through_slot_face,0,werkzeuglist[0],0,name=i)
+if 8.0 in dict_all:
+    for i in range (0,len(rechtgular_blind_slot_operation_dict['Site3'])):
+        site3_rechtgular_blind_slot_face_id = rechtgular_blind_slot_bottom_face_line_original[rechtgular_blind_slot_operation_dict['Site3'][i][3]]
+        site3_rechtgular_blind_slot_face = 'Face{:d}'.format(site3_rechtgular_blind_slot_face_id[0])
+        adaptive_operation(site3_rechtgular_blind_slot_face,0,werkzeuglist[0],0,name=i)
+if 12.0 in dict_all:
+    for i in range (0,len(triangular_blind_step_operation_dict['Site3'])):
+        site3_triangular_blind_step_face_id = triangular_blind_step_bottom_face_line_original[triangular_blind_step_operation_dict['Site3'][i][3]]
+        site3_triangular_blind_step_face = 'Face{:d}'.format(site3_triangular_blind_step_face_id[0])
+        adaptive_operation(site3_triangular_blind_step_face,0,werkzeuglist[0],0,name=i)
+if 13.0 in dict_all:
+    for i in range (0,len(circular_blind_step_operation_dict['Site3'])):
+        site3_circular_blind_step_face_id = circular_blind_step_bottom_face_line_original[circular_blind_step_operation_dict['Site3'][i][3]]
+        site3_circular_blind_step_face = 'Face{:d}'.format(site3_circular_blind_step_face_id[0])
+        adaptive_operation(site3_circular_blind_step_face,0,werkzeuglist[0],0,name=i)
+if 15.0 in dict_all:
+    for i in range (0,len(rechtangular_through_step_operation_dict['Site3'])):
+        site3_rechtangular_through_step_face_id = rechtangular_through_step_bottom_face_line_original[rechtangular_through_step_operation_dict['Site3'][i][3]]
+        site3_rechtangular_through_step_face = 'Face{:d}'.format(site3_rechtangular_through_step_face_id[0])
+        adaptive_operation(site3_rechtangular_through_step_face,0,werkzeuglist[0],0,name=i)
+if 17.0 in dict_all:
+    for i in range (0,len(slanted_through_step_operation_dict['Site3'])):
+        site3_slanted_through_step_face_id = slanted_through_step_bottom_face_line_original[slanted_through_step_operation_dict['Site3'][i][3]]
+        site3_slanted_through_step_face = 'Face{:d}'.format(site3_slanted_through_step_face_id[0])
+        adaptive_operation(site3_slanted_through_step_face,0,werkzeuglist[0],0,name=i)
+if 20.0 in dict_all:
+    for i in range (0,len(vertical_circular_end_blind_slot_operation_dict['Site3'])):
+        site3_vertical_circular_end_blind_slot_face_id = vertical_circular_end_blind_slot_bottom_face_line_original[vertical_circular_end_blind_slot_operation_dict['Site3'][i][3]]
+        site3_vertical_circular_end_blind_slot_face = 'Face{:d}'.format(site3_vertical_circular_end_blind_slot_face_id[0])
+        adaptive_operation(site3_vertical_circular_end_blind_slot_face,0,werkzeuglist[0],0,name=i)
+if 21.0 in dict_all:
+    for i in range (0,len(horizontal_circular_end_blind_slot_operation_dict['Site3'])):
+        site3_horizontal_circular_end_blind_slot_face_id = horizontal_circular_end_blind_slot_bottom_face_line_original[horizontal_circular_end_blind_slot_operation_dict['Site3'][i][3]]
+        site3_horizontal_circular_end_blind_slot_face = 'Face{:d}'.format(site3_horizontal_circular_end_blind_slot_face_id[0])
+        adaptive_operation(site3_horizontal_circular_end_blind_slot_face,0,werkzeuglist[0],0,name=i)
+
+job.PostProcessorOutputFile = gcodePath_site3
+job.PostProcessor = 'linuxcnc'
+job.PostProcessorArgs = '--no-show-editor'
+postlist = []
+currTool = None
+for obj in job.Operations.Group:
+    print( obj.Name)
+    tc = PathUtil.toolControllerForOp(obj)
+    if tc is not None:
+        if tc.ToolNumber != currTool:
+            postlist.append(tc)
+            currTool = tc.ToolNumber
+    postlist.append(obj)
+
+post = PathPostProcessor.PostProcessor.load(job.PostProcessor)
+gcode = post.export(postlist, gcodePath_site3, job.PostProcessorArgs)
+DOC.recompute()
+print("--- done ---")
+App.closeDocument(file_name_1)
+
+#site4
+DOC = App.openDocument(filepath_original)
+DOC.recompute()
+DOC = App.activeDocument()
+DOC.recompute()
+Part1 =  DOC.getObject(file_name_2)
+
+obj = App.ActiveDocument.Part__Feature                     # our box
+rot = App.Rotation(App.Vector(1,0,0),-90)   # 45° about Z
+centre = App.Vector(centervector)                  # central point of box
+pos = obj.Placement.Base                           # position point of box
+newplace = App.Placement(pos,rot,centre)       # make a new Placement object
+obj.Placement = newplace
+
+#Job creat
+Gui.activateWorkbench("PathWorkbench") #Path Workbrench activate
+job = PathJob.Create('Job_site4', [Part1], None)
+job.ViewObject.Proxy = PathJobGui.ViewProvider(job.ViewObject)
+
+#operation about Stock
+stock = job.Stock
+stock.setExpression('ExtXneg',None)
+stock.ExtXneg = 0.00
+stock.setExpression('ExtXpos',None)
+stock.ExtXpos = 0.00
+stock.setExpression('ExtYneg',None)
+stock.ExtYneg = 0.00
+stock.setExpression('ExtYpos',None)
+stock.ExtYpos = 0.00
+stock.setExpression('ExtZneg',None)
+stock.ExtZneg = 0.00
+stock.setExpression('ExtZpos',None)
+stock.ExtZpos = 0.00
+
+#Werkzeug Aufladen
+tool1_diameter = werkzeug(toolpath1, 'tool1') #3mm_endmill
+tool2_diameter = werkzeug(toolpath2, 'tool2') #5mm_endmill
+App.getDocument(file_name_1).getObject('ToolBit001').ShapeName = "endmill"
+DOC.recompute()
+werkzeuglist = ['tool1','tool2']
+
+#operation
+if 10.0 in dict_all:
+    for i in range (0,len(pocket_operation_dict['Site4'])):
+        site4_pocket_face_id = bottom_face_line_original[pocket_operation_dict['Site4'][i][3]]
+        site4_pocket_face = 'Face{:d}'.format(site4_pocket_face_id[0])
+        adaptive_operation(site4_pocket_face,0,werkzeuglist[0],0,name=i)
+if 2.0 in dict_all:
+    for i in range (0,len(blind_hole_operation_dict['Site4'])):
+        site4_blind_hole_face_id = blind_hole_bottom_face_line_original[blind_hole_operation_dict['Site4'][i][3]]
+        site4_blind_hole_face = 'Face{:d}'.format(site4_blind_hole_face_id[0])
+        adaptive_operation(site4_blind_hole_face, 0, werkzeuglist[0], 0, name=i+10)
+if 14.0 in dict_all:
+    for i in range (0,len(blind_step_operation_dict['Site4'])):
+        site4_blind_step_face_id = blind_step_bottom_face_line_original[blind_step_operation_dict['Site4'][i][3]]
+        site4_blind_step_face = 'Face{:d}'.format(site4_blind_step_face_id[0])
+        adaptive_operation(site4_blind_step_face, 0, werkzeuglist[0], 0, name=i + 20)
+if 7.0 in dict_all:
+    for i in range (0,len(rechtgular_through_slot_operation_dict['Site4'])):
+        site4_rechtgular_through_slot_face_id = rechtgular_through_slot_bottom_face_line_original[rechtgular_through_slot_operation_dict['Site4'][i][3]]
+        site4_rechtgular_through_slot_face = 'Face{:d}'.format(site4_rechtgular_through_slot_face_id[0])
+        adaptive_operation(site4_rechtgular_through_slot_face,0,werkzeuglist[0],0,name=i)
+if 8.0 in dict_all:
+    for i in range (0,len(rechtgular_blind_slot_operation_dict['Site4'])):
+        site4_rechtgular_blind_slot_face_id = rechtgular_blind_slot_bottom_face_line_original[rechtgular_blind_slot_operation_dict['Site4'][i][3]]
+        site4_rechtgular_blind_slot_face = 'Face{:d}'.format(site4_rechtgular_blind_slot_face_id[0])
+        adaptive_operation(site4_rechtgular_blind_slot_face,0,werkzeuglist[0],0,name=i)
+if 12.0 in dict_all:
+    for i in range (0,len(triangular_blind_step_operation_dict['Site4'])):
+        site4_triangular_blind_step_face_id = triangular_blind_step_bottom_face_line_original[triangular_blind_step_operation_dict['Site4'][i][3]]
+        site4_triangular_blind_step_face = 'Face{:d}'.format(site4_triangular_blind_step_face_id[0])
+        adaptive_operation(site4_triangular_blind_step_face,0,werkzeuglist[0],0,name=i)
+if 13.0 in dict_all:
+    for i in range (0,len(circular_blind_step_operation_dict['Site4'])):
+        site4_circular_blind_step_face_id = circular_blind_step_bottom_face_line_original[circular_blind_step_operation_dict['Site4'][i][3]]
+        site4_circular_blind_step_face = 'Face{:d}'.format(site4_circular_blind_step_face_id[0])
+        adaptive_operation(site4_circular_blind_step_face,0,werkzeuglist[0],0,name=i)
+if 15.0 in dict_all:
+    for i in range (0,len(rechtangular_through_step_operation_dict['Site4'])):
+        site4_rechtangular_through_step_face_id = rechtangular_through_step_bottom_face_line_original[rechtangular_through_step_operation_dict['Site4'][i][3]]
+        site4_rechtangular_through_step_face = 'Face{:d}'.format(site4_rechtangular_through_step_face_id[0])
+        adaptive_operation(site4_rechtangular_through_step_face,0,werkzeuglist[0],0,name=i)
+if 17.0 in dict_all:
+    for i in range (0,len(slanted_through_step_operation_dict['Site4'])):
+        site4_slanted_through_step_face_id = slanted_through_step_bottom_face_line_original[slanted_through_step_operation_dict['Site4'][i][3]]
+        site4_slanted_through_step_face = 'Face{:d}'.format(site4_slanted_through_step_face_id[0])
+        adaptive_operation(site4_slanted_through_step_face,0,werkzeuglist[0],0,name=i)
+if 20.0 in dict_all:
+    for i in range (0,len(vertical_circular_end_blind_slot_operation_dict['Site4'])):
+        site4_vertical_circular_end_blind_slot_face_id = vertical_circular_end_blind_slot_bottom_face_line_original[vertical_circular_end_blind_slot_operation_dict['Site4'][i][3]]
+        site4_vertical_circular_end_blind_slot_face = 'Face{:d}'.format(site4vertical_circular_end_blind_slot_face_id[0])
+        adaptive_operation(site4_vertical_circular_end_blind_slot_face,0,werkzeuglist[0],0,name=i)
+if 21.0 in dict_all:
+    for i in range (0,len(horizontal_circular_end_blind_slot_operation_dict['Site4'])):
+        site4_horizontal_circular_end_blind_slot_face_id = horizontal_circular_end_blind_slot_bottom_face_line_original[horizontal_circular_end_blind_slot_operation_dict['Site4'][i][3]]
+        site4_horizontal_circular_end_blind_slot_face = 'Face{:d}'.format(site4_horizontal_circular_end_blind_slot_face_id[0])
+        adaptive_operation(site4_horizontal_circular_end_blind_slot_face,0,werkzeuglist[0],0,name=i)
+
+job.PostProcessorOutputFile = gcodePath_site4
+job.PostProcessor = 'linuxcnc'
+job.PostProcessorArgs = '--no-show-editor'
+postlist = []
+currTool = None
+for obj in job.Operations.Group:
+    print( obj.Name)
+    tc = PathUtil.toolControllerForOp(obj)
+    if tc is not None:
+        if tc.ToolNumber != currTool:
+            postlist.append(tc)
+            currTool = tc.ToolNumber
+    postlist.append(obj)
+
+post = PathPostProcessor.PostProcessor.load(job.PostProcessor)
+gcode = post.export(postlist, gcodePath_site4, job.PostProcessorArgs)
+DOC.recompute()
 
 Gui.doCommand('exit()')
 
