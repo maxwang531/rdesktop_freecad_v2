@@ -87,8 +87,8 @@ file_name_1 = 'vorfuhrung_2'
 file_name_2 = "vorfuhrung_2"
 toolpath1 = "/usr/lib/freecad/Mod/Path/Tools/Bit/5mm_Endmill.fctb"
 toolpath2 = "/usr/lib/freecad/Mod/Path/Tools/Bit/8mm_Endmill.fctb" 
-gcodePath_surface = '/config/mnt/ausgabe_ngc/txt/surface_operation.txt'
-gcodePath_surface_neu = '/config/mnt/ausgabe_ngc/neu_txt/surface_operation.txt'
+gcodePath_surface = '/config/ausgabe_ngc/txt/surface_operation.txt'
+gcodePath_surface_neu = '/config/ausgabe_ngc/neu_txt/surface_operation.txt'
 model_file = '/config/mnt/rl_demo/rl_model/model_demo'
 #Datei öffnen
 DOC=App.openDocument(filepath)
@@ -352,41 +352,7 @@ tool2_diameter = werkzeug(toolpath2, 'tool2') #8mm_endmill
 App.getDocument(file_name_1).getObject('ToolBit002').ShapeName = "endmill"
 DOC.recompute()
 werkzeuglist = ['tool1','tool2']
-'''
-surface(werkzeuglist[0],tool1_diameter)
-simulator()
-export()
-voxel()
-voxel_anzahl, voxel_list_xyz = voxel_lesen()
-print("voxel nach operation:", len(voxel_list_xyz)) #70948
-stl_binvox_delete()
-
-#Step1 加工切除的体素，未转化为标准坐标
-vor_1 = rohteil_voxel_list_xyz  # voxelkoordinaten in Rohteil 这个是没有转化过的体素坐标
-nach_1 = voxel_list_xyz  # voxelkoordinaten nach der Bearbeitung 也是未转化过的体素坐标
-
-vor_1_array = np.asarray(vor_1)
-vor_1_rows = vor_1_array.view([('', vor_1_array.dtype)] * vor_1_array.shape[1])
-nach_1_array = np.asarray(nach_1)
-nach_1_rows = nach_1_array.view([('', nach_1_array.dtype)] * nach_1_array.shape[1])
-unterschied_1 = np.setdiff1d(vor_1_rows, nach_1_rows).view(vor_1_array.dtype).reshape(-1, vor_1_array.shape[
-            1])  # https://blog.csdn.net/weixin_40264653/article/details/105540049
-unterschied_1_list = unterschied_1.tolist()  # 加工切除的体素，未转化为标准坐标
-print("cutVoxel_1:",len(unterschied_1_list)) #加工切除的体素
-
-#Step2 加工后模型与zielteil的差距
-vor_2 = voxel_list_xyz  # voxelkoordinaten nach der Bearbeitung 也是未转化过的体素坐标
-nach_2 = zielteil_voxel_list_xyz  # voxelkoordinaten in zielteil 这个是没有转化过的体素坐标
-
-vor_2_array = np.asarray(vor_2)
-vor_2_rows = vor_2_array.view([('', vor_2_array.dtype)] * vor_2_array.shape[1])
-nach_2_array = np.asarray(nach_2)
-nach_2_rows = nach_2_array.view([('', nach_2_array.dtype)] * nach_2_array.shape[1])
-unterschied_2 = np.setdiff1d(vor_2_rows, nach_2_rows).view(vor_2_array.dtype).reshape(-1, vor_2_array.shape[
-            1])  # https://blog.csdn.net/weixin_40264653/article/details/105540049
-unterschied_2_list = unterschied_2.tolist()  # 加工切除的体素，未转化为标准坐标
-print("cutVoxel_2:",len(unterschied_2_list)) # 加工后模型与zielteil的差距
-'''
+werkzeugdiameter = [tool1_diameter,tool2_diameter]
 
 
 #ENV Aufbau
@@ -466,8 +432,7 @@ class MyEnv(Env):
             done = True
         else:
             done = False
-        info = {'roh_voxel':self.roh_voxel_anzahl,'ziel_voxel':self.ziel_voxel_anzahl
-                ,'model_voxel':len(voxel_list_xyz),'cut_voxel':len(unterschied_1_list),'not_cut_voxel':len(unterschied_2_list)}
+        info = {'werkzeug': list(action)[0].item(), 'cut_pattern_zahl': list(action)[1].item(), 'stepover': self.stepover[list(action)[2].item()], 'reward': reward}
         # observation
         observation_information = [len(voxel_list_xyz), len(unterschied_1_list), len(unterschied_2_list), cutmaterial_faces,cutmaterial_edges,cutmaterial_points]
         self.voxel_state = observation_information
