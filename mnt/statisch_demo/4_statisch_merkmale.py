@@ -57,23 +57,44 @@ print("element_1:",ssdnet_list_index_such_element_1_matrix) #[[0, 0], [0, 2], [2
 print("element_2:",ssdnet_list_index_such_element_2_matrix) #[[1, 6], [2, 6], [3, 6], [5, 4]]
 #建立一个以行数为key的字典
 #step1 建立行数列表
-key_list = [] #[0, 1, 2, 3, 4, 5]
-for i in range(0,ssdnet_Daten_zeile):
-    key_list.append(i)
-print("key_list:",key_list)
+#step1 建立行数列表
+if ssdnet_Daten_zeile == 1:
+    key_list = [] #[0, 1, 2, 3, 4, 5]
+    for i in range(0,ssdnet_Daten_zeile):
+        key_list.append(i)
+    print("key_list:",key_list)
 #step2 整合信息element
-zeile_list_element_1 = [[] for i in range(0,ssdnet_Daten_zeile)] #[[], [], [], [], [], []]
-zeile_list_element_2 = [[] for i in range(0,ssdnet_Daten_zeile)] #[[], [], [], [], [], []]
-for i in range(0,ssdnet_Daten_zeile):
-    for j in range(0,len(ssdnet_list_index_such_element_1_matrix)):
-        if ssdnet_list_index_such_element_1_matrix[0] == i:
-            zeile_list_element_1[i].append(ssdnet_list_index_such_element_1_matrix[1])
-print("zeile_list_element_1:",zeile_list_element_1)#[[0, 2], [], [1], [], [1], []]
-for i in range(0,ssdnet_Daten_zeile):
-    for j in range(0,len(ssdnet_list_index_such_element_2_matrix)):
-        if ssdnet_list_index_such_element_2_matrix[0] == i:
-            zeile_list_element_2[i].append(ssdnet_list_index_such_element_2_matrix[1])
-print("zeile_list_element_2:",zeile_list_element_2) #[[], [6], [6], [6], [], [4]]
+    zeile_list_element_1 = [[] for i in range(0,ssdnet_Daten_zeile)] #[[], [], [], [], [], []]
+    zeile_list_element_2 = [[] for i in range(0,ssdnet_Daten_zeile)] #[[], [], [], [], [], []]
+    for i in range(0,ssdnet_Daten_zeile):
+        for j in range(0,len(ssdnet_list_index_such_element_1_matrix)):
+            if ssdnet_list_index_such_element_1_matrix[0] == i:
+                zeile_list_element_1[i].append(ssdnet_list_index_such_element_1_matrix[1])
+    print("zeile_list_element_1:",zeile_list_element_1)#[[0, 2], [], [1], [], [1], []]
+    for i in range(0,ssdnet_Daten_zeile):
+        for j in range(0,len(ssdnet_list_index_such_element_2_matrix)):
+            if ssdnet_list_index_such_element_2_matrix[0] == i:
+                zeile_list_element_2[i].append(ssdnet_list_index_such_element_2_matrix[1])
+    print("zeile_list_element_2:",zeile_list_element_2) #[[], [6], [6], [6], [], [4]]
+
+if ssdnet_Daten_zeile != 1:
+    key_list = []  # [0, 1, 2, 3, 4, 5]
+    for i in range(0, ssdnet_Daten_zeile):
+        key_list.append(i)
+    print("key_list:", key_list)
+    # step2 整合信息element
+    zeile_list_element_1 = [[] for i in range(0, ssdnet_Daten_zeile)]  # [[], [], [], [], [], []]
+    zeile_list_element_2 = [[] for i in range(0, ssdnet_Daten_zeile)]  # [[], [], [], [], [], []]
+    for i in range(0, ssdnet_Daten_zeile):
+        for j in range(0, len(ssdnet_list_index_such_element_1_matrix)):
+            if ssdnet_list_index_such_element_1_matrix[j][0] == i:
+                zeile_list_element_1[i].append(ssdnet_list_index_such_element_1_matrix[1])
+    print("zeile_list_element_1:", zeile_list_element_1)  # [[0, 2], [], [1], [], [1], []]
+    for i in range(0, ssdnet_Daten_zeile):
+        for j in range(0, len(ssdnet_list_index_such_element_2_matrix)):
+            if ssdnet_list_index_such_element_2_matrix[j][0] == i:
+                zeile_list_element_2[i].append(ssdnet_list_index_such_element_2_matrix[1])
+    print("zeile_list_element_2:", zeile_list_element_2)  # [[], [6], [6], [6], [], [4]]
 #step3建立两个字典，一个检索0，一个检索40
 dict_such_element_1 = dict(zip(key_list,zeile_list_element_1))
 print("dict_such_element_1:",dict_such_element_1) #{0: [0, 2], 1: [], 2: [1], 3: [], 4: [1], 5: []}
